@@ -21,6 +21,8 @@ export default async (req, res, next) => {
 
     // incluir id no req, para poder usar em outras requisições
     req.useId = decoded.id;
+
+    return next();
   } catch (err) {
     return res.status(401).json({ error: 'Token invalid' });
   }
