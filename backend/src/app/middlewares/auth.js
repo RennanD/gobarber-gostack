@@ -17,10 +17,10 @@ export default async (req, res, next) => {
 
   try {
     // constante retornada por padrão no jw
-    const decoded = await promisify(jwt.verify())(token, authConfig.secret);
+    const decoded = await promisify(jwt.verify)(token, authConfig.secret);
 
     // incluir id no req, para poder usar em outras requisições
-    req.useId = decoded.id;
+    req.userId = decoded.id;
 
     return next();
   } catch (err) {
