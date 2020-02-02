@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { startOfHour, parseISO, isBefore, format } from 'date-fns';
+import { startOfHour, parseISO, isBefore, format, subHours } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 import Appointment from '../models/Appointment';
@@ -38,9 +38,9 @@ class AppointmentController {
 
   async store(req, res) {
     const schema = Yup.object().shape({
-      provider_id: Yup.number().required('You need inform provider'),
-      date: Yup.date('Oops, this is not a date').required(
-        'You need inform provider'
+      provider_id: Yup.number().required('You need inform provider.'),
+      date: Yup.date('Oops, this is not a date.').required(
+        'You need inform date.'
       ),
     });
 
@@ -57,14 +57,14 @@ class AppointmentController {
       if (!isProvider) {
         return res
           .status(401)
-          .json({ error: 'You can only creare appointment with providers' });
+          .json({ error: 'You can only creare appointment with providers.' });
       }
 
       // check if hour start has not past
       const hourStart = startOfHour(parseISO(date));
 
       if (isBefore(hourStart, new Date())) {
-        return res.status(401).json({ error: 'Past date are not permited' });
+        return res.status(401).json({ error: 'Past date are not permited.' });
       }
 
       // check date availability
@@ -98,6 +98,36 @@ class AppointmentController {
     } catch (err) {
       return res.status(400).json({ error: err });
     }
+  }
+
+  async delete(req, res) {
+    const { id } = req.params;
+
+    const appointment = await Appointment.findByPk(id);
+
+    // If user is not owner appontiment
+
+    if (appointment.user_id !== req.userId) {
+      return res.status(401).json({
+        error: "You don't have permission to cancel this appointment.",
+      });
+    }
+
+    // Check if the appointment is more than two hours away
+
+    const dateWithSubs = subHours(appointment.date, 2);
+
+    if (isBefore(dateWithSubs, new Date())) {
+      return res.status(401).json({
+        error: 'You can only cancel appointements 2 hours in advance.',
+      });
+    }
+
+    appointment.canceled_at = new Date();
+
+    await appointment.save();
+
+    return res.json(appointment);
   }
 }
 
