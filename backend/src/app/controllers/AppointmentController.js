@@ -6,7 +6,10 @@ import Appointment from '../models/Appointment';
 import User from '../models/User';
 import File from '../models/File';
 import Notification from '../schemas/Notification';
-import Mail from '../../lib/Mail';
+
+import Queue from '../../lib/Queue';
+
+import CancellationMail from '../jobs/CancellationMail';
 
 class AppointmentController {
   async index(req, res) {
@@ -137,28 +140,12 @@ class AppointmentController {
       });
     }
 
-    // Format date
-    const formatedDate = format(
-      appointment.date,
-      "dd 'de' MMMM', às' HH:mm'h' ",
-      {
-        locale: ptBR,
-      }
-    );
-
     appointment.canceled_at = new Date();
 
     await appointment.save();
 
-    await Mail.sendMail({
-      to: `${appointment.provider.name} <${appointment.provider.email}>`,
-      subject: 'Agendamento cancelado',
-      template: 'cancellation',
-      context: {
-        user: appointment.user.name,
-        provider: appointment.provider.name,
-        date: formatedDate,
-      },
+    await Queue.add(CancellationMail.key, {
+      appointment,
     });
 
     return res.json(appointment);
