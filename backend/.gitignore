@@ -3,3 +3,4 @@ node_modules
 Notes.md
 tmp/uploads/*
 !tmp/uploads/.gitkeep
+.env
