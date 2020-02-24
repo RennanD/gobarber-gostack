@@ -4,4 +4,4 @@
 
 <h2 align="center">GoBarber - GoStack main application</h2>
 
-<h3>Application created for scheduling a beauty salon</h3>
+<h3 align="center">Application created for scheduling a beauty salon</h3>
