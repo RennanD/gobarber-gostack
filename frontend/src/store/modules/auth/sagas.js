@@ -1,4 +1,4 @@
-import { all, takeLatest, call, put, select } from 'redux-saga/effects';
+import { all, takeLatest, call, put } from 'redux-saga/effects';
 
 import { toast } from 'react-toastify';
 
@@ -21,7 +21,8 @@ export function* singIn({ payload }) {
       toast.error('User is not provider');
       return;
     }
-    api.defaults.headers.Authorization = `Bearer ${response.data.token}`;
+    console.tron.log(token);
+    api.defaults.headers.Authorization = `Bearer ${token}`;
     yield put(singInSuccess(token, user));
 
     history.push('/dashboard');
@@ -54,7 +55,7 @@ export function setToken({ payload }) {
 }
 
 export default all([
-  takeLatest('@persist/REHYDRATE', setToken),
+  takeLatest('persist/REHYDRATE', setToken),
   takeLatest('@auth/SING_IN_REQUEST', singIn),
   takeLatest('@auth/SING_UP_REQUEST', singUP),
 ]);
