@@ -8,6 +8,7 @@ import { Container } from './styles';
 import AvatarInput from './AvatarInput';
 
 import { updateProfileRequest } from '~/store/modules/user/actions';
+import { singOut } from '~/store/modules/auth/actions';
 
 export default function Profile() {
   const profile = useSelector(state => state.user.profile);
@@ -44,7 +45,9 @@ export default function Profile() {
 
         <button type="submit">Atualizar perfil</button>
       </Form>
-      <button type="button">Sair do GoBarber</button>
+      <button type="button" onClick={() => dispatch(singOut())}>
+        Sair do GoBarber
+      </button>
     </Container>
   );
 }
